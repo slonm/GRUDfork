@@ -1,0 +1,151 @@
+.countries table
+{
+	font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+	font-size: 12px;
+	background: #fff;
+	width: 480px;
+	border-collapse: collapse;
+	text-align: left;
+}
+.countries th
+{
+	font-size: 14px;
+	font-weight: normal;
+	color: #039;
+	padding: 10px 8px;
+	border-bottom: 2px solid #6678b1;
+}
+
+.countries td
+{
+	color: #669;
+	padding: 9px 8px 0px 8px;
+}
+.countries tbody tr:hover td
+{
+	color: #009;
+}
+
+.countries #delete-limg {
+	background: url(../images/delete.ico) no-repeat;
+	float : left;
+	width : 16px;
+}
+.countries #delete-rimg { display:none;}
+.countries #delete-text { display:none;}
+
+.countries #update-limg {
+	background: url(../images/chat-event.ico) no-repeat;
+	float : left;
+	width : 16px;
+}
+.countries #update-rimg { display:none;}
+.countries #update-text { display:none;}
+
+.countries #prev-limg {
+	background: url(../images/left.gif) no-repeat;
+	float : left;
+	width : 16px;
+}
+.countries #prev-rimg { display:none;}
+.countries #prev-text { display:none;}
+
+.countries #next-limg {
+	background: url(../images/right.gif) no-repeat;
+	float : left;
+	width : 16px;
+}
+.countries #next-rimg { display:none;}
+.countries #next-text { display:none;}
+
+.countries #create {
+	width : 150px;
+}
+.countries #create-limg {
+	background: url(../images/plus.ico) no-repeat;
+	float : left;
+	width : 16px;
+}
+.countries #create-rimg { display:none;}
+.countries #create-text { float:left;}
+
+
+.countries #refresh {
+	width : 100px;
+}
+.countries #refresh-limg {
+	background: url(../images/refresh.png) no-repeat;
+	float : left;
+	width : 16px;
+}
+.countries #refresh-rimg { display:none;}
+.countries #refresh-text { float:left;}
+
+.regions table
+{
+	font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+	font-size: 12px;
+	width: 480px;
+	text-align: left;
+	border-collapse: collapse;
+	background: url(../images/blurry.jpg) 0px 59px no-repeat;
+}
+.regions th
+{
+	padding: 12px;
+	font-weight: normal;
+	font-size: 14px;
+	color: #339;
+}
+.regions td
+{
+	padding: 9px 12px;
+	color: #669;
+	border-top: 1px solid #fff;
+}
+.regions tfoot td
+{
+	font-size: 11px;
+}
+.regions tbody td
+{
+	background: url(../images/back.png);
+}
+.regions tbody tr:hover td
+{
+	color: #339;
+	background: none;
+}
+
+.cities table
+{
+	font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+	font-size: 12px;
+	width: 480px;
+	text-align: left;
+	border-collapse: collapse;
+}
+.cities th
+{
+	font-size: 13px;
+	font-weight: normal;
+	padding: 8px;
+	background: #b9c9fe;
+	border-top: 4px solid #aabcfe;
+	border-bottom: 1px solid #fff;
+	color: #039;
+}
+.cities td
+{
+	padding: 8px;
+	background: #e8edff; 
+	border-bottom: 1px solid #fff;
+	color: #669;
+	border-top: 1px solid transparent;
+}
+.cities tr:hover td
+{
+	background: #d0dafd;
+	color: #339;
+}
+
