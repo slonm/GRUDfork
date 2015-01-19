@@ -15,6 +15,7 @@ test.cpp: libtableedit.a
 clean:
 	rm -f ./$(TARGET)
 	rm -f ./$(TARGET).o
+	cd tableedit; make clean
 
 libtableedit.a:
 	cd tableedit; make
@@ -24,13 +25,13 @@ run: all
 
 deploy: all
 	cp ./$(TARGET) $(DEPLOY_DIR)
-	cp ./$(TABLEEDIT)/js/* $(DEPLOY_DIR)../www
-	cp ./$(TABLEEDIT)/images/* $(DEPLOY_DIR)../www/images/
+	cp ./$(TABLEEDIT)/js/* $(DEPLOY_DIR)../html
+	cp ./$(TABLEEDIT)/images/* $(DEPLOY_DIR)../html/images/
 
 onlydeploy:
 	cp ./$(TARGET) $(DEPLOY_DIR)
-	cp ./$(TABLEEDIT)/js/* $(DEPLOY_DIR)../www
-	cp ./$(TABLEEDIT)/images/* $(DEPLOY_DIR)../www/images/
+	cp ./$(TABLEEDIT)/js/* $(DEPLOY_DIR)../html
+	cp ./$(TABLEEDIT)/images/* $(DEPLOY_DIR)../html/images/
 
 	
 	

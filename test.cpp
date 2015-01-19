@@ -16,7 +16,7 @@ using namespace std;
 int main () {
 
 	cgicc::Cgicc* CGI = new cgicc::Cgicc();
-	pqxx::connection* DBConnection = new pqxx::connection("host=localhost port=5432 dbname= user= password=");
+	pqxx::connection* DBConnection = new pqxx::connection("host=localhost port=5432 dbname=fork user=fork password=krof");
 
 	TableEdit::Browsable Countries (CGI,DBConnection,"countries");
 	Countries.SetCaption("TableEdit::Browsable demo. Table 'countries'");
@@ -34,8 +34,8 @@ int main () {
 
 
 
-	TableEdit::Searchable Cities(CGI,DBConnection,"cities");
-	Cities.SetCaption("TableEdit::Searchable demo. Table 'cities'.");
+	TableEdit::Simple Cities(CGI,DBConnection,"cities");
+	Cities.SetCaption("TableEdit::Simple demo. Table 'cities'.");
 	Cities.AddField("id")->SetHidden()->SetOrderKey()->SetPrimaryKey();
 	Cities.AddField("id_country")->SetLabel("Country")->SetLink("countries","id","country","country",true)->SetReadOnly();
 	Cities.AddField("id_region")->SetLabel("Region")->SetLink("regions","id","region","region",true)->SetReadOnly();
@@ -44,11 +44,9 @@ int main () {
 	Cities.AddField("latitude");
 	Cities.AddField("timezone");
 	Cities.AddField("code");
-	Cities.AddSearchField("id_country");
-	Cities.AddSearchField("id_region");
 
 	Cities.SetPageSize(5);
-	Cities.SetCSS("cities");
+	Cities.SetCSS("countries");
 	Cities.DetectTypes();
 
 	TableEdit::Simple People(CGI,DBConnection,"people");
@@ -79,9 +77,9 @@ int main () {
 	cout << head() << endl;
 
 	cout << body().set("onload",Cities.OnLoadJS()+People.OnLoadJS()+Countries.OnLoadJS()) << endl;
-	cout << Countries() << endl;
+	//cout << Countries() << endl;
 	cout << Cities() << endl;
-	cout << People() << endl;
+	//cout << People() << endl;
 	cout << body() << html() << endl;
 
 	return 0;
