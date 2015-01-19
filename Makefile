@@ -1,24 +1,36 @@
 CC=g++
-INCLUDES=-I./tableedit/include -I.
-LIBDIRS=-L./tableedit/lib
-LIBS=-lpqxx -lcgicc
-DEPLOY_DIR=/var/www/egor10257.rvncerr.org/cgi-bin/
-TARGET=rtest
+INCLUDES=-I./tableedit/include/
+LIBDIRS=-L./tableedit/lib -L/usr/pgsql-9.3/lib/ 
+LIBS=-ltableedit -lpqxx -lpq -lcgicc
+DEPLOY_DIR=/var/www/cgi-bin/
+TARGET=test
+TABLEEDIT=./tableedit
 
-all:
-	$(CC) -c $(TARGET).cpp report.cpp $(INCLUDES)
-	$(CC) $(TARGET).o report.o -o ./$(TARGET) $(LIBS)
+all: $(TARGET).cpp
+
+test.cpp: libtableedit.a
+	$(CC) -c test.cpp $(INCLUDES)
+	$(CC) $(TARGET).o -o ./$(TARGET) $(LIBDIRS) $(LIBS)
 
 clean:
 	rm -f ./$(TARGET)
-	rm -f ./*.o
+	rm -f ./$(TARGET).o
+
+libtableedit.a:
+	cd tableedit; make
 
 run: all
 	./$(TARGET)
 
 deploy: all
 	cp ./$(TARGET) $(DEPLOY_DIR)
-	cp ./report.js $(DEPLOY_DIR)../www
+	cp ./$(TABLEEDIT)/js/* $(DEPLOY_DIR)../www
+	cp ./$(TABLEEDIT)/images/* $(DEPLOY_DIR)../www/images/
+
+onlydeploy:
+	cp ./$(TARGET) $(DEPLOY_DIR)
+	cp ./$(TABLEEDIT)/js/* $(DEPLOY_DIR)../www
+	cp ./$(TABLEEDIT)/images/* $(DEPLOY_DIR)../www/images/
 
 	
 	
