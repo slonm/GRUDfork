@@ -68,7 +68,7 @@ std::string Simple::OnLoadJS() {
 	QueryStream FieldList;
 	std::list<Field*>::iterator i;
 	for (i = Fields.begin(); i!= Fields.end(); ++i) {
-		FieldList.Add("'"+(*i)->GetName()+"'");
+		FieldList.Add("{ 'name': '"+(*i)->GetName()+"' }");
 	}
 
 	params << FieldList.str();
@@ -79,9 +79,9 @@ std::string Simple::OnLoadJS() {
 	//	+ "alert('onload');\n"
 	//	+ "t.run();"
 	//	; 
-	return "var t = new tableEdit.Simple("+params.str()+"); \n" 
+	return "(function (){var t = new tableEdit.Simple("+params.str()+"); \n" 
 		+ "window[t.name] = t;\n"
-		+ "window[t.name].run()\n"
+		+ "window[t.name].run();})();\n"
 		; 
 }
 

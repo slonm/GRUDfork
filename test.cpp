@@ -34,7 +34,7 @@ int main () {
 
 
 
-	TableEdit::Simple Cities(CGI,DBConnection,"cities");
+	TableEdit::Searchable Cities(CGI,DBConnection,"cities");
 	Cities.SetCaption("TableEdit::Simple demo. Table 'cities'.");
 	Cities.AddField("id")->SetHidden()->SetOrderKey()->SetPrimaryKey();
 	Cities.AddField("id_country")->SetLabel("Country")->SetLink("countries","id","country","country",true)->SetReadOnly();
@@ -70,16 +70,19 @@ int main () {
 
 
 	cout << html() << head() << endl;
+	cout << script().set("type","text/javascript").set("src","http://code.jquery.com/jquery-2.1.3.min.js") << script() << endl;
 	cout << script().set("type","text/javascript").set("src","../tableedit.js") << script() << endl;
 	cout << script().set("type","text/javascript").set("src","../datetimepicker_css.js") << script() << endl;
+	cout << script().set("type","text/javascript").set("src","http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js") << script() << endl;
+	cout << cgicc::link().set("rel","stylesheet").set("type","text/css").set("href","http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css") << endl;
 	cout << cgicc::link().set("rel","stylesheet").set("type","text/css").set("href","../style.css") << endl;
 
 	cout << head() << endl;
 
 	cout << body().set("onload",Cities.OnLoadJS()+People.OnLoadJS()+Countries.OnLoadJS()) << endl;
-	//cout << Countries() << endl;
+//	cout << Countries() << endl;
 	cout << Cities() << endl;
-	//cout << People() << endl;
+//	cout << People() << endl;
 	cout << body() << html() << endl;
 
 	return 0;

@@ -71,7 +71,7 @@ std::string Browsable::OnLoadJS() {
 	QueryStream FieldList;
 	std::list<Field*>::iterator i;
 	for (i = Fields.begin(); i!= Fields.end(); ++i) {
-		FieldList.Add("'"+(*i)->GetName()+"'");
+		FieldList.Add("{ 'name': '"+(*i)->GetName()+"' }");
 	}
 
 	params << FieldList.str();

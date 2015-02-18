@@ -8,14 +8,16 @@ namespace TableEdit {
 	class Searchable : public Simple {
 		private:
 		protected: 
-			std::list<Field*> SearchFields;
-			std::string ReadForm();
+//			std::list<Field*> SearchFields;
+//			std::string ReadForm();
 		public:
 			// propagate constructor to base class
 			Searchable(cgicc::Cgicc* CGI, pqxx::connection* DBConnection, std::string TableName):
 				Simple(CGI,DBConnection,TableName) {};
 
-			Field* AddSearchField(std::string Name);
+//			Field* AddSearchField(std::string Name);
+			std::string operator()();
+			std::string OnLoadJS();
 	};
 };
 
