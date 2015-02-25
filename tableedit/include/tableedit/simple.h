@@ -8,6 +8,7 @@
 #include <tableedit/field.h>
 #include <tableedit/fieldtypes.h>
 #include <tableedit/util.h>
+#include <tableedit/querystream.h>
 
 #include <cgicc/Cgicc.h>
 #include <cgicc/HTMLClasses.h>
@@ -27,11 +28,14 @@ namespace TableEdit {
 			int PageSize;
 			std::string CSSClass;
 			std::string Caption;
-
+      
 			std::list<Field*> Fields;
 
 			FieldTypes Types;
 
+			size_t selectQueryNextParamId;
+			virtual void BindSelectQueryParamTypes(pqxx::prepare::declaration& d);
+			virtual void BindSelectQueryParams(pqxx::prepare::invocation& inv);
 			virtual std::string ReadForm();
 			std::string InsertForm();
 			bool CommitInsert();
@@ -40,6 +44,7 @@ namespace TableEdit {
 			std::string DeleteForm();
 			bool CommitDelete();
 
+			virtual void FillSelectWhere(QueryStream& WhereClause);
 			std::string GetSelectQuery();
 			std::string GetSelectForUpdateQuery(std::string id);
 			std::string Button(std::string Id, std::string Text, std::string JSFunction );
@@ -61,7 +66,7 @@ namespace TableEdit {
 			void SetCSS(std::string S) { CSSClass = S; };
 			void SetCaption(std::string C) { Caption = C;};
 			void DetectTypes();
-			bool CatchAJAX();
+			virtual bool CatchAJAX();
 			std::string GetFormElement(std::string Name);
 
 	};

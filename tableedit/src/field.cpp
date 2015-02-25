@@ -28,9 +28,10 @@ namespace TableEdit {
 		return this;
 	}
 
-	std::string Field::GetInputHTML(std::string Value, std::string Id, std::string OnChange ) {
+	std::string Field::GetInputHTML(std::string Value, std::string Id, std::string OnChange, std::string Css ) {
 		std::stringstream out,Width;
 		cgicc::HTMLAtomicElement<cgicc::inputTag> inp;
+		inp.set("class",Css);
 
 		if ( Type.UDTName == "date" ) {
 			inp.set("type","Text").set("id",Table->Scope("field-"+Name));
@@ -42,6 +43,7 @@ namespace TableEdit {
 			out << cgicc::img().set("src","/images/cal.gif").set("onclick","javascript:NewCssCal('"+Table->Scope("field-"+Name)+"')").set("style","cursor:pointer");
 		} else if (Link == true ) {
 			cgicc::HTMLBooleanElement<cgicc::selectTag> sel;
+			sel.set("class",Css);
 			cgicc::HTMLBooleanElement<cgicc::optionTag> opt;
 			std::stringstream Query;
 			Query << "SELECT " << LinkKey << "," << LinkValue << " FROM " << LinkTable << " ORDER BY " << LinkOrder;

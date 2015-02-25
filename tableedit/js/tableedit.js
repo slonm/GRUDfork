@@ -49,7 +49,7 @@ var tableEdit = {
 			this.commitInsert = function () {
 				var params = this.scope('action') + '=commit-insert';
 				for (var i = 0; i < this.fields.length; i++) {
-					var id = this.scope('field-' + this.fields[i]);
+					var id = this.scope('field-' + this.fields[i].name);
 					//alert(id);
 					params += '&' + id + '=' + document.getElementById(id).value;
 				}
@@ -83,6 +83,14 @@ var tableEdit = {
 					params += '&' + id + '=' + document.getElementById(id).value;
 				}
 				return params;
+			}
+
+			this.fieldByName = function (name) {
+				for (var i = 0; i < this.fields.length; i++) {
+					if (this.fields[i].name === name) {
+						return this.fields[i];
+					}
+				}
 			}
 
 			this.send = function (str) {
@@ -131,12 +139,15 @@ var tableEdit = {
 	Searchable: function (params) {
 		var searchable = tableEdit.Simple(params);
 		var simpleRun = searchable.run;
+		var simpleSelect = searchable.select;
+		searchable.constraints = "";
 		searchable.run = function () {
 			tableEdit.initFilter(this);
 			simpleRun.call(this);
-		}
-		searchable.applySearch = function () {
-		}
+		};
+		searchable.select = function () {
+			return simpleSelect.call(this) + this.constraints;
+		};
 		return searchable;
 	},
 	Browsable: function (params) {
@@ -152,44 +163,6 @@ tableEdit.removeById = function (id) {
 	$("." + id).remove();
 };
 
-tableEdit.filterPredicatChanged = function (id, value) {
-	var filterInputContainer = $("." + id + ".filter-input-container");
-	filterInputContainer.empty();
-	switch (value) {
-		case "text-eq":
-		case "text-like":
-			filterInputContainer.append('<input type="text" class="form-control filter-input ' + id + '">');
-			return;
-		case "num-eq":
-		case "num-lt":
-		case "num-eqlt":
-		case "num-gt":
-		case "num-eqgt":
-			filterInputContainer.append('<input type="number" class="form-control filter-input ' + id + '" value="0">');
-			return;
-		case "date-eq":
-		case "date-lt":
-		case "date-lteq":
-		case "date-gt":
-		case "date-eqgt":
-			filterInputContainer.append('<input type="date" class="form-control filter-input ' + id + '">');
-			return;
-		case "timestampz-eq":
-		case "timestampz-lt":
-		case "timestampz-lteq":
-		case "timestampz-gt":
-		case "timestampz-eqgt":
-			filterInputContainer.append('<input type="datetime-local" class="form-control filter-input ' + id + '">');
-			return;
-		case "char-eq":
-			filterInputContainer.append('<input type="text" class="form-control filter-input ' + id + '" maxlength=1 placeholder="input one character">');
-			return;
-		case "empty":
-		case "bool-true":
-		case "bool-false":
-	}
-};
-
 tableEdit.initFilter = function (searchable) {
 	var filterPanel = $("#" + searchable.scope("filter"));
 	filterPanel.addClass("filter-panel");
@@ -200,99 +173,64 @@ tableEdit.initFilter = function (searchable) {
 			+ '</div>'
 			+ '<button type="button" class="filter-button btn btn-default" onclick="' + searchable.name + '.clearFilterClick()">Clear</button>'
 			+ '<button type="button" class="filter-button btn btn-default" onclick="' + searchable.name + '.viewSqlClick()">View SQL</button>'
-//			+ '<!--button type="button" class="filter-button btn btn-default" onclick="' + searchable.name + '.applyFilterClick()">Apply</button-->'
+			+ '<button type="button" class="filter-button btn btn-default" onclick="' + searchable.name + '.applySearch()">Apply</button>'
 			);
-	filterPanel.append('<div id="' + searchable.scope("sql-area") + '"></div>');
+	filterPanel.append('<pre id="' + searchable.scope("sql-area") + '"></pre>');
 
 	searchable.clearFilterClick = function () {
 		$('#' + this.scope("filter-constraints")).empty();
 	};
-	searchable.viewSqlClick = function () {
-		var constraints = "";
+
+	searchable.prepareFilter = function () {
+		this.constraints = "";
+		var constraints = {
+			fieldName: {},
+			predicate: {},
+			value: {}
+		};
+		var i = 0;
 		$('#' + this.scope("filter-constraints")).find("tr").each(function () {
-			var fieldName = $(this).find(".filter-field").attr("field");
+			constraints.fieldName[i] = $(this).find(".filter-field").attr("field");
 			var isInverse = $(this).find(".filter-inverse").is(':checked');
-			var predicate = $(this).find(".filter-predicate").val();
-			var value = $(this).find(".filter-input").val();
-			var constraint;
-			switch (predicate) {
-				case "char-eq":
-				case "text-eq":
-					constraint = fieldName + ' = \'' + value + "'";
-					break;
-				case "text-like":
-					constraint = fieldName + ' LIKE \'' + value + "'";
-					break;
-				case "num-eq":
-					constraint = fieldName + ' = ' + value;
-					break;
-				case "num-lt":
-					constraint = fieldName + ' < ' + value;
-					break;
-				case "num-eqlt":
-					constraint = fieldName + ' <= ' + value;
-					break;
-				case "num-gt":
-					constraint = fieldName + ' > ' + value;
-					break;
-				case "num-eqgt":
-					constraint = fieldName + ' >= ' + value;
-					break;
-				case "date-eq":
-					constraint = fieldName + ' = DATE \'' + value + "'";
-					break;
-				case "date-lt":
-					constraint = fieldName + ' < DATE \'' + value + "'";
-					break;
-				case "date-lteq":
-					constraint = fieldName + ' <= DATE \'' + value + "'";
-					break;
-				case "date-gt":
-					constraint = fieldName + ' > DATE \'' + value + "'";
-					break;
-				case "date-eqgt":
-					constraint = fieldName + ' >= DATE \'' + value + "'";
-					break;
-
-				case "timestampz-eq":
-					constraint = fieldName + ' = TIMESTAMP \'' + value + "'";
-					break;
-				case "timestampz-lt":
-					constraint = fieldName + ' < TIMESTAMP \'' + value + "'";
-					break;
-				case "timestampz-lteq":
-					constraint = fieldName + ' <= TIMESTAMP \'' + value + "'";
-					break;
-				case "timestampz-gt":
-					constraint = fieldName + ' > TIMESTAMP \'' + value + "'";
-					break;
-				case "timestampz-eqgt":
-					constraint = fieldName + ' >= TIMESTAMP \'' + value + "'";
-					break;
-
-				case "empty":
-					constraint = fieldName + ' IS NULL';
-					break;
-				case "bool-true":
-					constraint = fieldName + ' = TRUE';
-					break;
-				case "bool-false":
-					constraint = fieldName + ' = FALSE';
-					break;
+			var pred = $(this).find(".filter-predicate").val();
+			var pos = pred.indexOf("-");
+			var pred1 = pred;
+			if (pos > -1) {
+				pred1 = pred.slice(pos + 1);
 			}
-			//TBD
-			if (isInverse) {
-				constraint = 'NOT (' + constraint + ")";
+			constraints.predicate[i] = (isInverse ? "n-" : "") + pred1;
+			constraints.value[i] = $(this).find(".filter-input").val();
+			if (pred === "link-eq") {
+				var option = $(this).find(".filter-input").find("option[value=" + constraints.value[i] + "]");
+				if (option.length) {
+					constraints.value[i] = option.text();
+				}
 			}
-			if (constraints !== "") {
-				constraints += " AND ";
-			}
-			constraints += constraint;
+			i++;
 		});
-		$('#' + this.scope("sql-area")).text("SELECT * FROM " + this.name + " WHERE " + constraints);
+		constraints = $.param(constraints);
+		if (constraints === "")
+			return;
+		this.constraints = "&" + constraints;
+		this.action('select');
 	};
-	var selectorByDataType = function (type) {
-		switch (type) {
+
+	searchable.applySearch = function () {
+		this.prepareFilter();
+		this.action('select');
+	}
+
+	searchable.viewSqlClick = function () {
+		this.prepareFilter();
+		$('#' + this.scope("sql-area")).text(this.send(this.scope('action') + '=sql' + this.constraints));
+	};
+	var selectorByField = function (field) {
+		if (field.linkkey !== '') {
+			return '<option value="link-eq">Equal to</option>'
+					+ '<option value="link-like">Like</option>'
+					+ '<option value="empty">Is empty</option>';
+		}
+		switch (field.type) {
 			case 'text':
 			case 'varchar':
 				return '<option value="text-eq">Equal to</option>'
@@ -332,6 +270,25 @@ tableEdit.initFilter = function (searchable) {
 						+ '<option value="empty">Is empty</option>';
 		}
 	};
+
+	searchable.filterPredicatChanged = function (id, fieldName, value) {
+		var filterInputContainer = $("." + id + ".filter-input-container");
+		filterInputContainer.empty();
+		var field = this.fieldByName(fieldName);
+		if (value === "link-like" && field.linkkey !== '') {
+			filterInputContainer.append(this.send('tableedit-' + field.linktable + '-action' + '=input&field=' + field.linkvalue));
+			return;
+		}
+		switch (value) {
+			case "empty":
+			case "bool-true":
+			case "bool-false":
+				break;
+			default:
+				filterInputContainer.append(this.send(this.scope('action') + '=input&field=' + fieldName));
+		}
+	};
+
 	searchable.addFilterFieldClick = function (field) {
 		for (var i = 0; i < this.fields.length; i++) {
 			if (field === this.fields[i].name) {
@@ -341,21 +298,23 @@ tableEdit.initFilter = function (searchable) {
 		var constraints = $('#' + this.scope("filter-constraints"));
 		var id = "filter-id-" + tableEdit.lastUniqueID++;
 		constraints.append('<tr id="' + id + '">'
-				+ '<td class="filter-field" field="' + field.name + '">' + field.name + '</td>'
-				+ '<td><label><input type="checkbox" class="filter-inverse">Not</label></td>'
-				+ '<td><select class="form-control filter-predicate" onchange="tableEdit.filterPredicatChanged(\'' + id + '\' , this.options[this.selectedIndex].value)">'
-				+ selectorByDataType(field.type)
+				+ '<td class="filter-field" field="' + field.name + '">' + field.label + '</td>'
+				+ '<td><label style="white-space: nowrap;"><input type="checkbox" class="filter-inverse">Not</label></td>'
+				+ '<td><select class="filter-predicate" onchange="' + this.name + '.filterPredicatChanged(\'' + id + '\' , \'' + field.name + '\' , this.options[this.selectedIndex].value)">'
+				+ selectorByField(field)
 				+ '</select></td>'
 				+ '<td class="filter-input-container"></td>'
-				+ '<td><button type="button" class="btn btn-default" onclick="tableEdit.removeById(\'' + id + '\')"><span class="glyphicon glyphicon-remove-circle"></span></button></td>'
+				+ '<td><button type="button" onclick="tableEdit.removeById(\'' + id + '\')"><span class="glyphicon glyphicon-remove-circle"></span></button></td>'
 				+ '</tr>');
 		$("#" + id).addClass(id);
 		$("#" + id).find("*").addClass(id);
-		tableEdit.filterPredicatChanged(id, $(".filter-predicate." + id).val());
+		this.filterPredicatChanged(id, field.name, $(".filter-predicate." + id).val());
 	};
 	var buttons = $('#' + searchable.scope("filter-drop-down-area"));
 	for (var i = 0; i < searchable.fields.length; i++) {
-		buttons.append('<li role = "presentation" > <a role = "menuitem" tabindex = "-1" href = "#" onclick="' + searchable.name + '.addFilterFieldClick(\'' + searchable.fields[i].name + '\')"> ' + searchable.fields[i].name + ' </a></li>');
+		if (searchable.fields[i].hidden === false) {
+			buttons.append('<li role = "presentation" > <a role = "menuitem" tabindex = "-1" href = "#" onclick="' + searchable.name + '.addFilterFieldClick(\'' + searchable.fields[i].name + '\')"> ' + searchable.fields[i].label + ' </a></li>');
+		}
 	}
 }
 
