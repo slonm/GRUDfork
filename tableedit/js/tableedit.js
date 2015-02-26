@@ -168,14 +168,14 @@ tableEdit.initFilter = function (searchable) {
 	filterPanel.addClass("filter-panel");
 	filterPanel.append('<table id="' + searchable.scope("filter-constraints") + '" class="filter-constraints"></table>');
 	filterPanel.append('<div class="filter-button dropdown">'
-			+ '<button class="btn btn-default dropdown-toggle" type="button" id="' + searchable.scope("filter-drop-down") + '" data-toggle="dropdown" aria-expanded="true">Add Field...<span class="caret"></span></button>'
+			+ '<button class="filter-button dropdown-toggle" type="button" id="' + searchable.scope("filter-drop-down") + '" data-toggle="dropdown" aria-expanded="true">Add Field...<span class="caret"></span></button>'
 			+ '<ul class="dropdown-menu" role="menu" aria-labelledby="' + searchable.scope("filter-drop-down") + '" id=' + searchable.scope("filter-drop-down-area") + '></ul>'
 			+ '</div>'
-			+ '<button type="button" class="filter-button btn btn-default" onclick="' + searchable.name + '.clearFilterClick()">Clear</button>'
-			+ '<button type="button" class="filter-button btn btn-default" onclick="' + searchable.name + '.viewSqlClick()">View SQL</button>'
-			+ '<button type="button" class="filter-button btn btn-default" onclick="' + searchable.name + '.applySearch()">Apply</button>'
+			+ '<button type="button" class="filter-button" onclick="' + searchable.name + '.clearFilterClick()">Clear</button>'
+			+ '<button type="button" class="filter-button" onclick="' + searchable.name + '.viewSqlClick(this)">View SQL</button>'
+			+ '<button type="button" class="filter-button" onclick="' + searchable.name + '.applySearch()">Apply</button>'
 			);
-	filterPanel.append('<pre id="' + searchable.scope("sql-area") + '"></pre>');
+	filterPanel.append('<pre id="' + searchable.scope("sql-area") + '" style="display: none;"></pre>');
 
 	searchable.clearFilterClick = function () {
 		$('#' + this.scope("filter-constraints")).empty();
@@ -218,12 +218,29 @@ tableEdit.initFilter = function (searchable) {
 	searchable.applySearch = function () {
 		this.prepareFilter();
 		this.action('select');
+		this.updateSqlArea();
 	}
 
-	searchable.viewSqlClick = function () {
-		this.prepareFilter();
-		$('#' + this.scope("sql-area")).text(this.send(this.scope('action') + '=sql' + this.constraints));
+	searchable.updateSqlArea = function () {
+		var sqlArea = $('#' + searchable.scope("sql-area"));
+		if (sqlArea.css('display') !== 'none') {
+			sqlArea.text(this.send(this.scope('action') + '=sql' + this.constraints));
+		}
 	};
+
+	searchable.viewSqlClick = function (button) {
+		var sqlArea = $('#' + searchable.scope("sql-area"));
+		if (sqlArea.css('display') === 'none') {
+			sqlArea.css('display', 'block');
+			$(button).html('Hide SQL');
+			this.prepareFilter();
+			this.updateSqlArea();
+		} else {
+			sqlArea.css('display', 'none');
+			$(button).html('View SQL');
+		}
+	};
+
 	var selectorByField = function (field) {
 		if (field.linkkey !== '') {
 			return '<option value="link-eq">Equal to</option>'
