@@ -64,7 +64,7 @@ namespace TableEdit {
 			std::string GetLinkKey() { return LinkKey; };
 			FieldType GetType() { return Type; };
 
-			std::string GetInputHTML(std::string Value="",std::string Id = "", std::string OnChange = "");
+			std::string GetInputHTML(std::string Value="",std::string Id = "", std::string OnChange = "", std::string Css = "");
 	};
 };
 

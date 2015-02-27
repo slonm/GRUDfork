@@ -149,3 +149,13 @@
 	color: #339;
 }
 
+.filter-panel {
+}
+
+.filter-constraints tr td{
+	padding: 10px;
+}
+.filter-button {
+	display:inline-block;
+	margin: 10px;
+}
