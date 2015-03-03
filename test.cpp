@@ -19,15 +19,15 @@ int main() {
 		cgicc::Cgicc* CGI = new cgicc::Cgicc();
 		pqxx::connection* DBConnection = new pqxx::connection("host=localhost port=5432 dbname=fork user=fork password=krof");
 
-		TableEdit::Browsable Countries(CGI, DBConnection, "countries");
-		Countries.SetCaption("TableEdit::Browsable demo. Table 'countries'");
+		TableEdit::Searchable Countries(CGI, DBConnection, "countries");
+		Countries.SetCaption("TableEdit::Searchable demo. Table 'countries'");
 		Countries.AddField("id")->SetHidden()->SetOrderKey()->SetPrimaryKey();
 		Countries.AddField("country");
 		Countries.AddField("capital");
 		Countries.AddField("population");
 		Countries.AddField("internet");
 		Countries.AddField("currency");
-		Countries.BrowseWith("id", "country", "country", true);
+		//Countries.BrowseWith("id", "country", "country", true);
 
 		Countries.SetPageSize(5);
 		Countries.SetCSS("cities");
@@ -36,7 +36,7 @@ int main() {
 
 
 		TableEdit::Searchable Cities(CGI, DBConnection, "cities");
-		Cities.SetCaption("TableEdit::Simple demo. Table 'cities'.");
+		Cities.SetCaption("TableEdit::Searchable demo. Table 'cities'.");
 		Cities.AddField("id")->SetHidden()->SetOrderKey()->SetPrimaryKey();
 		Cities.AddField("id_country")->SetLabel("Country")->SetLink("countries", "id", "country", "country", true)->SetReadOnly();
 		Cities.AddField("id_region")->SetLabel("Region")->SetLink("regions", "id", "region", "region", true)->SetReadOnly();
@@ -50,8 +50,8 @@ int main() {
 		Cities.SetCSS("countries");
 		Cities.DetectTypes();
 
-		TableEdit::Simple People(CGI, DBConnection, "people");
-		People.SetCaption("TableEdit::Simple demo. Table 'people'.");
+		TableEdit::Searchable People(CGI, DBConnection, "people");
+		People.SetCaption("TableEdit::Searchable demo. Table 'people'.");
 		People.AddField("id")->SetLabel("ID")->SetPrimaryKey()->SetOrderKey()->SetHidden()->SetReadOnly();
 		People.AddField("name")->SetLabel("Name");
 		People.AddField("lastname")->SetLabel("LastName");
@@ -63,8 +63,8 @@ int main() {
 		People.SetCSS("countries");
 		People.DetectTypes();
 
-		TableEdit::Simple Regions(CGI, DBConnection, "regions");
-		Regions.SetCaption("TableEdit::Simple demo. Table 'regions'.");
+		TableEdit::Searchable Regions(CGI, DBConnection, "regions");
+		Regions.SetCaption("TableEdit::Searchable demo. Table 'regions'.");
 		Regions.AddField("id")->SetLabel("ID")->SetPrimaryKey()->SetOrderKey()->SetHidden()->SetReadOnly();
 		Regions.AddField("region")->SetLabel("Region");
 		Regions.SetPageSize(5);
@@ -89,7 +89,9 @@ int main() {
 
 		cout << body().set("onload", Cities.OnLoadJS() + People.OnLoadJS() + Countries.OnLoadJS()) << endl;
 		cout << Countries() << endl;
+		cout << br() << br();
 		cout << Cities() << endl;
+		cout << br() << br();
 		cout << People() << endl;
 		cout << body() << html() << endl;
 	} catch (std::exception& ex) {
