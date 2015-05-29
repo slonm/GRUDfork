@@ -1,3 +1,4 @@
 tableedit/lib/*.a
 tableedit/src/*.o
 *.o
+test

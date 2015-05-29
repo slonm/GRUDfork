@@ -176,23 +176,19 @@ tableEdit.removeById = function (id) {
 tableEdit.initConstructor = function (constructor) {
 
 	constructor.selectTableHtml = function (id) {
-		return '<select class="constructor-tables" onchange="' + this.params.name + '.constructorTableChanged(\'' + id + '\' , this.options[this.selectedIndex].value)">'
-				+ (function () {
-					var result = "";
-					for (var i = 0; i < this.params.tables.length; i++) {
-						result += '<option value="' + this.params.tables[i].name + '">' + this.params.tables[i].name + '</option>';
-					}
-					return result;
-				})()
-				+ '</select>';
+		var result = '<select class="constructor-tables" onchange="' + this.params.name + '.constructorTableChanged(\'' + id + '\' , this.options[this.selectedIndex].value)">';
+		for (var i = 0; i < this.params.tables.length; i++) {
+			result += '<option value="' + this.params.tables[i].name + '">' + this.params.tables[i].name + '</option>';
+		}
+		return result + '</select>';
 	};
 
 	var id = "constructor-id-" + tableEdit.lastUniqueID++;
 	var constructorPanel = $("#" + constructor.scope("constructor"));
 	constructorPanel.addClass("constructor-panel");
-	constructorPanel.append('<table id="' + this.scope("constructor-from") + '" class="constructor-from"><tr id="'+id+'">'
+	constructorPanel.append('<table id="' + constructor.scope("constructor-from") + '" class="constructor-from"><tr id="' + id + '">'
 			+ '<td>●</td>'
-			+ '<td>' + constructor.selectTableHtml(id) + '</td><td><button type="button" class="filter-button" onclick="' + this.name + '.joinTableClick()">Join table</button></td><tr></table>');
+			+ '<td>' + constructor.selectTableHtml(id) + '</td><td><button type="button" class="filter-button" onclick="' + constructor.params.name + '.joinTableClick()">Join table</button></td><tr></table>');
 };
 
 tableEdit.initFilter = function (searchable) {

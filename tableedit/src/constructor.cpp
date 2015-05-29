@@ -17,7 +17,8 @@ namespace TableEdit {
 
 	std::string Constructor::OnLoadJS() {
 		std::stringstream params;
-		params << " { tables: [";
+		params << "{ name : '" << TableName << "'";
+		params << ", tables: [";
 		bool firstPass = true;
 		for (Tables::const_iterator tIt = tables.begin(); tIt != tables.end(); tIt++) {
 			if (firstPass) {
