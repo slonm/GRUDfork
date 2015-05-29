@@ -4,5 +4,6 @@
 #include <tableedit/simple.h>
 #include <tableedit/browsable.h>
 #include <tableedit/searchable.h>
+#include <tableedit/constructor.h>
 
 #endif

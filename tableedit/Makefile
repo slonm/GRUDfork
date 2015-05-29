@@ -5,8 +5,8 @@ LIBDIR=./lib
 AR=ar
 
 
-all: searchable.o browsable.o 
-	cd $(SRCDIR); ar rcs ../$(LIBDIR)/libtableedit.a simple.o searchable.o browsable.o field.o util.o
+all: searchable.o browsable.o constructor.o
+	cd $(SRCDIR); ar rcs ../$(LIBDIR)/libtableedit.a simple.o searchable.o browsable.o field.o util.o constructor.o
 
 searchable.o: simple.o
 	cd $(SRCDIR); $(CC) -c searchable.cpp $(INCLUDES)
@@ -19,6 +19,9 @@ simple.o: searchfield.o util.o
 
 searchfield.o: field.o
 	cd $(SRCDIR); $(CC) -c searchfield.cpp $(INCLUDES)
+
+constructor.o: 
+	cd $(SRCDIR); $(CC) -c constructor.cpp $(INCLUDES)
 
 field.o:
 	cd $(SRCDIR); $(CC) -c field.cpp $(INCLUDES)

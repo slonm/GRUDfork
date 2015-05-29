@@ -25,12 +25,12 @@ run: all
 
 deploy: all
 	cp ./$(TARGET) $(DEPLOY_DIR)
-	cp ./$(TABLEEDIT)/js/* $(DEPLOY_DIR)../html
+	cp -r ./$(TABLEEDIT)/js/* $(DEPLOY_DIR)../html
 	cp ./$(TABLEEDIT)/images/* $(DEPLOY_DIR)../html/images/
 
 onlydeploy:
 	cp ./$(TARGET) $(DEPLOY_DIR)
-	cp ./$(TABLEEDIT)/js/* $(DEPLOY_DIR)../html
+	cp -r ./$(TABLEEDIT)/js/* $(DEPLOY_DIR)../html
 	cp ./$(TABLEEDIT)/images/* $(DEPLOY_DIR)../html/images/
 
 	

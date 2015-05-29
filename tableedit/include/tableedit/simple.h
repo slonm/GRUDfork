@@ -24,12 +24,9 @@ namespace TableEdit {
 		protected:
 			pqxx::connection *DBConnection;
 			cgicc::Cgicc *CGI;
-			std::string TableName;
 			int PageSize;
 			std::string CSSClass;
 			std::string Caption;
-      
-			std::list<Field*> Fields;
 
 			FieldTypes Types;
 
@@ -51,6 +48,8 @@ namespace TableEdit {
 			std::string Pagination();
 
 		public:
+			std::string TableName;
+			std::list<Field*> Fields;
 			Simple(cgicc::Cgicc* CGI, pqxx::connection* DBConnection, std::string TableName);
 			std::string operator()();
 			std::string OnLoadJS();

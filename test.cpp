@@ -71,8 +71,15 @@ int main() {
 		Regions.SetCSS("countries");
 		Regions.DetectTypes();
 
+		TableEdit::Constructor constructor(CGI, DBConnection, "c1");
+		constructor.SetCSS("countries");
+		constructor.AddTable(Countries)
+						.AddTable(Cities)
+						.AddTable(People)
+						.AddTable(Regions);
+
 		cout << HTTPHTMLHeader() << endl;
-		if (Countries.CatchAJAX() || Cities.CatchAJAX() || People.CatchAJAX() || Regions.CatchAJAX()) {
+		if (Countries.CatchAJAX() || Cities.CatchAJAX() || People.CatchAJAX() || Regions.CatchAJAX() || constructor.CatchAJAX()) {
 			return 0;
 		}
 
@@ -87,12 +94,15 @@ int main() {
 
 		cout << head() << endl;
 
-		cout << body().set("onload", Cities.OnLoadJS() + People.OnLoadJS() + Countries.OnLoadJS()) << endl;
-		cout << Countries() << endl;
-		cout << br() << br();
-		cout << Cities() << endl;
-		cout << br() << br();
-		cout << People() << endl;
+//		cout << body().set("onload", Cities.OnLoadJS() + People.OnLoadJS() + Countries.OnLoadJS() + constructor.OnLoadJS()) << endl;
+		cout << body().set("onload", constructor.OnLoadJS()) << endl;
+		cout << constructor() << endl;
+//		cout << br() << br();
+//		cout << Countries() << endl;
+//		cout << br() << br();
+//		cout << Cities() << endl;
+//		cout << br() << br();
+//		cout << People() << endl;
 		cout << body() << html() << endl;
 	} catch (std::exception& ex) {
 		cout << ex.what() << endl;
