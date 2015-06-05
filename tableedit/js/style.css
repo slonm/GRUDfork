@@ -159,3 +159,12 @@
 	display:inline-block;
 	margin: 10px;
 }
+.constructor-tree {
+	font-family: monospace;
+}
+.constructor-panel td{
+	white-space: nowrap;
+}
+
+.constructor-that-table {
+}

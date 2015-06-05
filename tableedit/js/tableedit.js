@@ -175,20 +175,168 @@ tableEdit.removeById = function (id) {
 
 tableEdit.initConstructor = function (constructor) {
 
+	constructor.constructorTableChanged = function (id, value) {
+		var select = $("#" + id).find('.constructor-this-fields');
+		if (select.length) {
+			var table = this.tableByName(value);
+			select.html(this.selectFieldHtml(id, "constructor-this-fields", table));
+		}
+	};
+
+	constructor.constructorFieldChanged = function (id, value) {
+
+	};
+
+	constructor.constructorJoinChanged = function (id, value) {
+
+	};
+
 	constructor.selectTableHtml = function (id) {
 		var result = '<select class="constructor-tables" onchange="' + this.params.name + '.constructorTableChanged(\'' + id + '\' , this.options[this.selectedIndex].value)">';
+		//result += '<option value="-">&lt;Not selected&gt;</option>';
 		for (var i = 0; i < this.params.tables.length; i++) {
 			result += '<option value="' + this.params.tables[i].name + '">' + this.params.tables[i].name + '</option>';
 		}
 		return result + '</select>';
 	};
 
-	var id = "constructor-id-" + tableEdit.lastUniqueID++;
+	constructor.tableByRowId = function (id) {
+		var tname = $("#" + id).find('.constructor-tables').val();
+		if (tname === '-')
+			return;
+		for (var i = 0; i < this.params.tables.length; i++) {
+			if (this.params.tables[i].name === tname) {
+				return this.params.tables[i];
+			}
+		}
+	};
+
+	constructor.tableByName = function (name) {
+		for (var i = 0; i < this.params.tables.length; i++) {
+			if (this.params.tables[i].name === name) {
+				return this.params.tables[i];
+			}
+		}
+	};
+
+	constructor.selectFieldHtml = function (id, css, table) {
+		var result = '<select class="' + css + '" onchange="' + this.params.name + '.constructorFieldChanged(\'' + id + '\' , this.options[this.selectedIndex].value)">';
+		//result += '<option value="-">&lt;Not selected&gt;</option>';
+		if (typeof table !== 'undefined') {
+			for (var i = 0; i < table.fields.length; i++) {
+				result += '<option value="' + table.fields[i].name + '">' + table.fields[i].name + '</option>';
+			}
+		}
+		return result + '</select>';
+	};
+
+	constructor.removeClick = function (id, parentId) {
+		$("#" + parentId).find('.constructor-join-button-container').css({display: "inline"});
+		$("#" + id).remove();
+	};
+
+	constructor.newRow = function (parentId, level) {
+
+		var id = "constructor-id-" + tableEdit.lastUniqueID++;
+		var newRow = '<tr id="' + id + '" level="' + (parseInt(level) + 1) + '">'
+				+ '<td class="constructor-tree">';
+//		for (var i = 0; i <= level; i++) {
+//			if (i === level) {
+//				newRow += '+';
+//			} else {
+//				newRow += '|';
+//			}
+//		}
+		newRow += '</td>'
+				+ '<td>' + constructor.selectTableHtml(id) + '</td>';
+		if (level > 0) {
+			var joinSelect = '<select class="constructor-joins" onchange="' + this.params.name + '.constructorJoinChanged(\'' + id + '\' , this.options[this.selectedIndex].value)">';
+			joinSelect += '<option value="inner join">inner</option>';
+			joinSelect += '<option value="left outer join">left outer</option>';
+			joinSelect += '<option value="right outer join">right outer</option>';
+			joinSelect += '<option value="full outer join">full outer</option>';
+			joinSelect += '</select>';
+			newRow += '<td>' + joinSelect + '</td>'
+					+ '<td>on:</td><td align=right><button class="constructor-that-table" disabled">' + this.tableByRowId(parentId).name + "</button>&nbsp;.&nbsp;" + this.selectFieldHtml(id, "constructor-that-fields", this.tableByRowId(parentId)) + '</td>'
+					+ '<td>= ' + this.selectFieldHtml(id, "constructor-this-fields", this.tableByName(this.params.tables[0].name)) + '</td>';
+		}
+		newRow += '<td><span class="constructor-join-button-container">'
+				+ '<button type="button" class="constructor-button" onclick="' + this.params.name + '.joinTableClick(\'' + id + '\')">Join table</button>&nbsp;'
+				//+ '<button type="button" class="constructor-button" onclick="' + this.params.name + '.joinTreeClick(\'' + id + '\')">Join to tree</button>&nbsp;'
+				+ '</span>';
+		if (level > 0) {
+			newRow += '<button type="button" class="constructor-button" onclick="' + this.params.name + '.removeClick(\'' + id + '\',\'' + parentId + '\')">X</button>';
+		}
+		newRow += '</td>'
+				+ '<tr>';
+		return newRow;
+	};
+
+	constructor.joinTableClick = function (id) {
+		var level = $("#" + id).attr("level");
+		$("#" + this.scope("constructor-from")).append(this.newRow(id, level));
+		//$(this.newRow(id, level)).insertAfter($("#" + id));
+		//hide parent join button
+		//$("#" + id).find('.constructor-join-button-container').css({display: "none"});
+	};
+
+	constructor.joinTreeClick = function (id) {
+		var level = $("#" + id).attr("level");
+		var found = false;
+		var nextTr;
+		$("#" + this.scope("constructor-from")).find("tr[level=" + level + "]").each(function (index) {
+			if ($(this).id === id) {
+				found = true;
+			} else if (found === true && typeof (nextTr) === 'undefined') {
+				nextTr = $(this);
+			}
+		});
+		var newRow = $(this.newRow(id, level));
+		if (typeof (nextTr) === 'undefined') {
+			newRow.insertBefore(nextTr);
+		} else {
+			$("#" + this.scope("constructor-from")).append(newRow);
+		}
+		//hide parent join button
+		$("#" + id).find('.constructor-join-button-container').css({display: "none"});
+	};
+
+	constructor.updateSqlArea = function () {
+		var sqlArea = $('#' + this.scope("sql-area"));
+		if (sqlArea.css('display') !== 'none') {
+			var text = 'select * from ';
+			var constructorTable = $("#" + constructor.scope("constructor-from"));
+			constructorTable.find("tr").each(function () {
+				var cnt = $(this);
+				if (typeof cnt.attr('id') !== 'undefined') {
+					if (cnt.find(".constructor-joins").length !== 0) {
+						text += " " + cnt.find(".constructor-joins").val();
+						text += " " + cnt.find(".constructor-tables").val() + " on";
+						text += " " + cnt.find(".constructor-that-table").text() + "." + cnt.find(".constructor-that-fields").val() + " =";
+						text += " " + cnt.find(".constructor-tables").val() + "." + cnt.find(".constructor-this-fields").val();
+					} else {
+						text += cnt.find(".constructor-tables").val();
+					}
+				}
+			});
+			text += ";";
+			sqlArea.text(text);
+		}
+	};
+
+	constructor.viewSqlClick = function (button) {
+		var sqlArea = $('#' + this.scope("sql-area"));
+		sqlArea.css('display', 'block');
+		this.updateSqlArea();
+	};
+
 	var constructorPanel = $("#" + constructor.scope("constructor"));
 	constructorPanel.addClass("constructor-panel");
-	constructorPanel.append('<table id="' + constructor.scope("constructor-from") + '" class="constructor-from"><tr id="' + id + '">'
-			+ '<td>●</td>'
-			+ '<td>' + constructor.selectTableHtml(id) + '</td><td><button type="button" class="filter-button" onclick="' + constructor.params.name + '.joinTableClick()">Join table</button></td><tr></table>');
+	constructorPanel.append('<table id="' + constructor.scope("constructor-from") + '" class="constructor-from">'
+			+ constructor.newRow(0, 0)
+			+ '</table>');
+	constructorPanel.append('<button type="button" class="filter-button" onclick="' + constructor.params.name + '.viewSqlClick(this)">View SQL</button>');
+	constructorPanel.append('<pre id="' + constructor.scope("sql-area") + '" style="display: none;"></pre>');
 };
 
 tableEdit.initFilter = function (searchable) {
@@ -247,7 +395,7 @@ tableEdit.initFilter = function (searchable) {
 		this.prepareFilter();
 		this.action('select');
 		this.updateSqlArea();
-	}
+	};
 
 	searchable.updateSqlArea = function () {
 		var sqlArea = $('#' + searchable.scope("sql-area"));
@@ -361,5 +509,5 @@ tableEdit.initFilter = function (searchable) {
 			buttons.append('<li role = "presentation" > <a role = "menuitem" tabindex = "-1" href = "#" onclick="' + searchable.name + '.addFilterFieldClick(\'' + searchable.fields[i].name + '\')"> ' + searchable.fields[i].label + ' </a></li>');
 		}
 	}
-}
+};
 
