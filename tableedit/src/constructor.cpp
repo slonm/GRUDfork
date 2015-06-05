@@ -47,7 +47,7 @@ namespace TableEdit {
 		}
 		params << "]} ";
 		return "(function (){var t = new tableEdit.Constructor(" + params.str() + "); \n"
-						+ "window[t.name] = t;\n"
+						+ "window[t.params.name] = t;\n"
 						+ "})();\n"
 						;
 	}
