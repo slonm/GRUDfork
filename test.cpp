@@ -88,9 +88,8 @@ int main() {
 		cout << script().set("type", "text/javascript").set("src", "http://code.jquery.com/jquery-2.1.3.min.js") << script() << endl;
 		cout << script().set("type", "text/javascript").set("src", "../tableedit.js") << script() << endl;
 		cout << script().set("type", "text/javascript").set("src", "../datetimepicker_css.js") << script() << endl;
-		cout << script().set("type", "text/javascript").set("src", "../bootstrap.min.js") << script() << endl;
-		cout << cgicc::link().set("rel", "stylesheet").set("type", "text/css").set("href", "../bootstrap.min.css") << endl;
-		cout << cgicc::link().set("rel", "stylesheet").set("type", "text/css").set("href", "../bootstrap-combined.min.css") << endl;
+		cout << script().set("type", "text/javascript").set("src", "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js") << script() << endl;
+		cout << cgicc::link().set("rel", "stylesheet").set("type", "text/css").set("href", "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css") << endl;
 		cout << cgicc::link().set("rel", "stylesheet").set("type", "text/css").set("href", "../style.css") << endl;
 
 		cout << head() << endl;

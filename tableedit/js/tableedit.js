@@ -312,7 +312,7 @@ tableEdit.initConstructor = function (constructor) {
 				//+ '<button type="button" class="constructor-button" onclick="' + this.params.name + '.joinTreeClick(\'' + id + '\')">Join to tree</button>&nbsp;'
 				+ '</span>';
 		if (level > 0) {
-			newRow += '<button type="button" class="constructor-button" onclick="' + this.params.name + '.removeClick(\'' + id + '\',\'' + parentId + '\')">X</button>';
+			newRow += '<button type="button" class="constructor-button" onclick="' + this.params.name + '.removeClick(\'' + id + '\',\'' + parentId + '\')"><span class="glyphicon glyphicon-remove-circle"></span></button>';
 		}
 		newRow += '</td>'
 				+ '<tr>';
@@ -348,6 +348,66 @@ tableEdit.initConstructor = function (constructor) {
 		$("#" + id).find('.constructor-join-button-container').css({display: "none"});
 	};
 
+	constructor.predicate = function (strPredicate) {
+		var pred = {};
+		if (strPredicate == "like") {
+			pred.isBinary = true;
+			pred.predicate = "LIKE";
+		} else if (strPredicate === "eq") {
+			pred.isBinary = true;
+			pred.predicate = "=";
+		} else if (strPredicate === "lt") {
+			pred.isBinary = true;
+			pred.predicate = "<";
+		} else if (strPredicate === "eqlt") {
+			pred.isBinary = true;
+			pred.predicate = "<=";
+		} else if (strPredicate === "gt") {
+			pred.isBinary = true;
+			pred.predicate = ">";
+		} else if (strPredicate === "eqgt") {
+			pred.isBinary = true;
+			pred.predicate = ">=";
+		} else if (strPredicate === "true") {
+			pred.isBinary = false;
+			pred.predicate = "= TRUE";
+		} else if (strPredicate === "false") {
+			pred.isBinary = false;
+			pred.predicate = "= FALSE";
+		} else if (strPredicate === "empty") {
+			pred.isBinary = false;
+			pred.predicate = "IS NULL";
+		} else if (strPredicate === "n-like") {
+			pred.isBinary = true;
+			pred.predicate = "NOT LIKE";
+		} else if (strPredicate === "n-eq") {
+			pred.isBinary = true;
+			pred.predicate = "<>";
+		} else if (strPredicate === "n-lt") {
+			pred.isBinary = true;
+			pred.predicate = ">=";
+		} else if (strPredicate === "n-eqlt") {
+			pred.isBinary = true;
+			pred.predicate = ">";
+		} else if (strPredicate === "n-gt") {
+			pred.isBinary = true;
+			pred.predicate = "<=";
+		} else if (strPredicate === "n-eqgt") {
+			pred.isBinary = true;
+			pred.predicate = "<";
+		} else if (strPredicate === "n-true") {
+			pred.isBinary = false;
+			pred.predicate = "<> TRUE";
+		} else if (strPredicate === "n-false") {
+			pred.isBinary = true;
+			pred.predicate = "<> FALSE";
+		} else if (strPredicate === "n-empty") {
+			pred.isBinary = false;
+			pred.predicate = "IS NOT NULL";
+		}
+		return pred;
+	};
+
 	constructor.updateSqlArea = function () {
 		var sqlArea = $('#' + this.scope("sql-area"));
 		var text = 'select * from ';
@@ -365,10 +425,20 @@ tableEdit.initConstructor = function (constructor) {
 				}
 			}
 		});
-		text += ";";
+		this.prepareFilter();
+		var where = "";
+		for (var i = 0; i < this.constraints.length; i++) {
+			if (where === "") {
+				where = " where";
+			}
+			var pred = this.predicate(this.constraints[i].predicate);
+			where += " " + this.constraints[i].tableName + "." + this.constraints[i].fieldName + " " + pred.predicate;
+			if (pred.isBinary) {
+				where += " " + this.constraints[i].value;
+			}
+		}
+		text += where + ";";
 		sqlArea.text(text);
-
-		//sqlArea.text(this.send(this.scope('action') + '=sql' + this.constraints));
 	};
 
 	constructor.viewSqlClick = function (button) {
@@ -381,18 +451,14 @@ tableEdit.initConstructor = function (constructor) {
 		$('#' + this.scope("filter-constraints")).empty();
 	};
 
+	constructor.constraints = [];
 	constructor.prepareFilter = function () {
-		this.constraints = "";
-		var constraints = {
-			tableName: {},
-			fieldName: {},
-			predicate: {},
-			value: {}
-		};
-		var i = 0;
+		constructor.constraints = [];
+		var constraints = constructor.constraints;
 		$('#' + this.scope("filter-constraints")).find("tr").each(function () {
-			constraints.tableName[i] = $(this).find(".filter-table").attr("table");
-			constraints.fieldName[i] = $(this).find(".filter-field").attr("field");
+			var constraint = {};
+			constraint.tableName = $(this).find(".filter-table").attr("table");
+			constraint.fieldName = $(this).find(".filter-field").attr("field");
 			var isInverse = $(this).find(".filter-inverse").is(':checked');
 			var pred = $(this).find(".filter-predicate").val();
 			var pos = pred.indexOf("-");
@@ -400,26 +466,21 @@ tableEdit.initConstructor = function (constructor) {
 			if (pos > -1) {
 				pred1 = pred.slice(pos + 1);
 			}
-			constraints.predicate[i] = (isInverse ? "n-" : "") + pred1;
-			constraints.value[i] = $(this).find(".filter-input").val();
+			constraint.predicate = (isInverse ? "n-" : "") + pred1;
+			constraint.value = $(this).find(".filter-input").val();
 			if (pred === "link-eq") {
-				var option = $(this).find(".filter-input").find("option[value=" + constraints.value[i] + "]");
+				var option = $(this).find(".filter-input").find("option[value=" + constraint.value + "]");
 				if (option.length) {
-					constraints.value[i] = option.text();
+					constraint.value = option.text();
 				}
 			}
 			i++;
+			constraints.push(constraint);
 		});
-		constraints = $.param(constraints);
-		if (constraints === "")
-			return;
-		this.constraints = "&" + constraints;
-		this.action('select');
 	};
 
 	constructor.applySearch = function () {
-		this.prepareFilter();
-		this.action('select');
+		//this.action('select');
 		this.updateSqlArea();
 	};
 
@@ -438,7 +499,7 @@ tableEdit.initConstructor = function (constructor) {
 	constructor.send = function (str) {
 		//alert(str,this.script);
 		var req = new XMLHttpRequest();
-		req.open("POST", this.script, false);
+		req.open("POST", document.location, false);
 
 		req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 		//req.setRequestHeader("Content-length", params.length);
@@ -520,9 +581,7 @@ tableEdit.initConstructor = function (constructor) {
 	for (var t = 0; t < tables.length; t++) {
 		btnTxt += '<li class="dropdown-submenu" > <a tabindex = "-1" href = "#"> ' + tables[t].name + ' </a><ul class="dropdown-menu">';
 		for (var i = 0; i < tables[t].fields.length; i++) {
-			if (tables[t].fields[i].hidden === false) {
-				btnTxt += '<li> <a role = "menuitem" tabindex = "-1" href = "#" onclick="' + constructor.name + '.addFilterFieldClick(\'' + tables[t].name + '\' , \'' + tables[t].fields[i].name + '\')"> ' + tables[t].fields[i].name + ' </a></li>';
-			}
+			btnTxt += '<li> <a role = "menuitem" tabindex = "-1" href = "#" onclick="' + constructor.name + '.addFilterFieldClick(\'' + tables[t].name + '\' , \'' + tables[t].fields[i].name + '\')"> ' + tables[t].fields[i].name + ' </a></li>';
 		}
 		btnTxt += '</ul></li>';
 	}
